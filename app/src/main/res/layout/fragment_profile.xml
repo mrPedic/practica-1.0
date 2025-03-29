@@ -1,64 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:backgroundTint="@color/color_4"
-    tools:context=".ProfileFragment">
+    tools:context=".profileFragment">
 
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:layout_marginLeft="150dp"
+        android:text="Profile Fragment" />
 
-    <LinearLayout
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp">
 
         <EditText
-            android:id="@+id/login_input"
+            android:id="@+id/title_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Введите логин"
+            android:hint="Введите заголовок"
             android:inputType="text"/>
 
         <EditText
-            android:id="@+id/password_input"
+            android:id="@+id/subtitle_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Введите пароль"
-            android:inputType="textPassword"
+            android:hint="Введите подзаголовок"
+            android:inputType="text"
             android:layout_marginTop="8dp"/>
 
         <Button
             android:id="@+id/save_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@color/color_2"
             android:text="Сохранить"
-            app:strokeWidth="10px"
-            app:strokeColor="@color/color_3" />
+            android:layout_marginTop="16dp"/>
 
         <Button
             android:id="@+id/load_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/color_2"
-            android:text="Показать данные"
-            app:strokeWidth="10px"
-            app:strokeColor="@color/color_3"/>
+            android:text="Загрузить данные"
+            android:layout_marginTop="8dp"/>
 
-        <ScrollView
+        <TextView
+            android:id="@+id/profile_data"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="16dp">
-
-            <TextView
-                android:id="@+id/profile_data"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"/>
-        </ScrollView>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"/>
     </LinearLayout>
 </FrameLayout>
