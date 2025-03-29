@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:backgroundTint="@color/color_4"
     tools:context=".ProfileFragment">
 
 
@@ -12,12 +13,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp">
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/unknownUserIcon" />
 
         <EditText
             android:id="@+id/login_input"
@@ -39,20 +34,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/color2"
+            android:backgroundTint="@color/color_2"
             android:text="Сохранить"
             app:strokeWidth="10px"
-            app:strokeColor="@color/color3" />
+            app:strokeColor="@color/color_3" />
 
         <Button
             android:id="@+id/load_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:backgroundTint="@color/color2"
+            android:backgroundTint="@color/color_2"
             android:text="Показать данные"
             app:strokeWidth="10px"
-            app:strokeColor="@color/color3"/>
+            app:strokeColor="@color/color_3"/>
 
         <ScrollView
             android:layout_width="match_parent"

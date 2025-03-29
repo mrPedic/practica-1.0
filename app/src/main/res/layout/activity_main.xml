@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="52dp"
-        android:backgroundTint="@color/color4"
+        android:backgroundTint="@color/color_4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/color3"
+        android:background="@color/color_3"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -36,7 +36,7 @@
         <ImageView
             android:id="@+id/house"
             android:clickable="true"
-            android:backgroundTint="@color/color3"
+            android:backgroundTint="@color/color_3"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="30dp"
@@ -46,19 +46,19 @@
         <ImageView
             android:id="@+id/notification"
             android:clickable="true"
-            android:backgroundTint="@color/color3"
+            android:backgroundTint="@color/color_3"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="30dp"
             app:srcCompat="@drawable/notification" />
 
         <ImageView
-            android:backgroundTint="@color/color3"
+            android:backgroundTint="@color/color_3"
             android:clickable="true"
             android:id="@+id/profile"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            app:srcCompat="@drawable/profile" />
+            app:srcCompat="@drawable/unknown_user_icon" />
     </LinearLayout>
 
 

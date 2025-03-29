@@ -17,15 +17,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class ProfileFragment extends Fragment {
-    private FeedReaderDbHelper dbHelper;
-    private EditText loginInput;
-    private EditText passwordInput;
+    private DataBaseOfUsers dbHelper;
+    private EditText loginInput, passwordInput;
     private TextView dataView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dbHelper = new FeedReaderDbHelper(requireContext());
+        dbHelper = new DataBaseOfUsers(requireContext());
     }
 
     @Nullable
@@ -37,6 +36,7 @@ public class ProfileFragment extends Fragment {
         loginInput = view.findViewById(R.id.login_input);
         passwordInput = view.findViewById(R.id.password_input);
         dataView = view.findViewById(R.id.profile_data);
+
         Button saveButton = view.findViewById(R.id.save_button);
         Button loadButton = view.findViewById(R.id.load_button);
 
@@ -50,49 +50,126 @@ public class ProfileFragment extends Fragment {
         String login = loginInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
 
-        // Проверка на пустые поля с выделением ошибок
+        if (validateInputs(login, password)) return;
+
+        new AsyncTask<Void, Void, Integer>() {
+            private Long rowId;
+            private boolean loginExists;
+
+            @Override
+            protected Integer doInBackground(Void... voids) {
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+                // Проверка существования логина
+                Cursor cursor = db.query(
+                        DataBaseOfUsers.UserTable.TABLE_NAME,
+                        new String[]{DataBaseOfUsers.UserTable._ID},
+                        DataBaseOfUsers.UserTable.LOGIN + " = ?",
+                        new String[]{login},
+                        null, null, null
+                );
+
+                loginExists = cursor.getCount() > 0;
+                cursor.close();
+
+                if (!loginExists) {
+                    ContentValues values = new ContentValues();
+                    values.put(DataBaseOfUsers.UserTable.LOGIN, login);
+                    values.put(DataBaseOfUsers.UserTable.PASSWORD, password);
+
+                    // Автоматическое заполнение остальных полей
+                    values.put(DataBaseOfUsers.UserTable.USERNAME, generateUsername(login));
+                    values.put(DataBaseOfUsers.UserTable.ROLE, "human"); // По умолчанию
+                    values.put(DataBaseOfUsers.UserTable.LIKES_INSTITUTION, 0);
+                    values.put(DataBaseOfUsers.UserTable.FOLLOWS, 0);
+                    values.put(DataBaseOfUsers.UserTable.LIKES_THEMES, 0);
+
+                    rowId = db.insert(
+                            DataBaseOfUsers.UserTable.TABLE_NAME,
+                            null,
+                            values
+                    );
+                }
+                return 0;
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                handleSaveResult(loginExists, rowId);
+            }
+        }.execute();
+    }
+
+    private String generateUsername(String login) {
+        return "user_" + login.toLowerCase();
+    }
+
+    private boolean validateInputs(String login, String password) {
         boolean hasError = false;
 
         if (login.isEmpty()) {
             loginInput.setError("Введите логин");
+            hasError = true;
+        } else if (login.length() < 4) {
+            loginInput.setError("Логин должен содержать минимум 4 символа");
             hasError = true;
         }
 
         if (password.isEmpty()) {
             passwordInput.setError("Введите пароль");
             hasError = true;
+        } else if (password.length() < 6) {
+            passwordInput.setError("Пароль должен содержать минимум 6 символов");
+            hasError = true;
         }
 
         if (hasError) {
-            Toast.makeText(getContext(), "Заполните все обязательные поля", Toast.LENGTH_SHORT).show();
-            return;
+            Toast.makeText(getContext(), "Исправьте ошибки ввода", Toast.LENGTH_SHORT).show();
         }
+        return hasError;
+    }
 
-        new AsyncTask<Void, Void, Long>() {
+    private void handleSaveResult(boolean loginExists, Long rowId) {
+        if (loginExists) {
+            loginInput.setError("Логин уже занят");
+            Toast.makeText(getContext(), "Пользователь с таким логином уже существует", Toast.LENGTH_SHORT).show();
+        } else if (rowId == -1) {
+            Toast.makeText(getContext(), "Ошибка сохранения", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "Данные сохранены (ID: " + rowId + ")", Toast.LENGTH_SHORT).show();
+            clearInputs();
+            loadProfileData();
+        }
+    }
+
+    private void loadProfileData() {
+        new AsyncTask<Void, Void, String>() {
             @Override
-            protected Long doInBackground(Void... voids) {
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
+            protected String doInBackground(Void... voids) {
+                StringBuilder result = new StringBuilder("Сохраненные данные:\n\n");
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-                ContentValues values = new ContentValues();
-                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_LOGIN, login);
-                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_PASSWORD, password);
-
-                return db.insert(
-                        FeedReaderDbHelper.FeedEntry.TABLE_NAME,
-                        null,
-                        values
-                );
+                try (Cursor cursor = db.query(
+                        DataBaseOfUsers.UserTable.TABLE_NAME,
+                        null, null, null, null, null, null
+                )) {
+                    while (cursor.moveToNext()) {
+                        result.append("ID: ").append(cursor.getLong(0)).append("\n")
+                                .append("Логин: ").append(cursor.getString(1)).append("\n")
+                                .append("Пароль: ").append(cursor.getString(2)).append("\n")
+                                .append("Роль: ").append(cursor.getString(3)).append("\n")
+                                .append("Имя: ").append(cursor.getString(6)).append("\n")
+                                .append("Лайков учреждений: ").append(cursor.getInt(4)).append("\n")
+                                .append("Подписок: ").append(cursor.getInt(5)).append("\n")
+                                .append("Лайков тем: ").append(cursor.getInt(7)).append("\n\n");
+                    }
+                }
+                return result.toString();
             }
 
             @Override
-            protected void onPostExecute(Long rowId) {
-                if (rowId == -1) {
-                    Toast.makeText(getContext(), "Ошибка сохранения", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "Данные сохранены (ID: " + rowId + ")", Toast.LENGTH_SHORT).show();
-                    clearInputs();
-                    loadProfileData();
-                }
+            protected void onPostExecute(String result) {
+                dataView.setText(result);
             }
         }.execute();
     }
@@ -102,47 +179,6 @@ public class ProfileFragment extends Fragment {
         passwordInput.setText("");
         loginInput.setError(null);
         passwordInput.setError(null);
-    }
-
-    private void loadProfileData() {
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... voids) {
-                StringBuilder result = new StringBuilder();
-                result.append("Сохраненные данные:\n\n");
-
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
-                Cursor cursor = db.query(
-                        FeedReaderDbHelper.FeedEntry.TABLE_NAME,
-                        null, null, null, null, null, null
-                );
-
-                try {
-                    while (cursor.moveToNext()) {
-                        long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry._ID));
-                        String login = cursor.getString(
-                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_LOGIN)
-                        );
-                        String password = cursor.getString(
-                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_PASSWORD)
-                        );
-
-                        result.append("ID: ").append(id).append("\n")
-                                .append("Логин: ").append(login).append("\n")
-                                .append("Пароль: ").append(password).append("\n\n");
-                    }
-                } finally {
-                    cursor.close();
-                }
-
-                return result.toString();
-            }
-
-            @Override
-            protected void onPostExecute(String result) {
-                dataView.setText(result);
-            }
-        }.execute();
     }
 
     @Override
