@@ -16,13 +16,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.practica.FeedReaderDbHelper;
-import com.example.practica.R;
-
 public class ProfileFragment extends Fragment {
     private FeedReaderDbHelper dbHelper;
-    private EditText titleInput;
-    private EditText subtitleInput;
+    private EditText loginInput;
+    private EditText passwordInput;
     private TextView dataView;
 
     @Override
@@ -37,8 +34,8 @@ public class ProfileFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        titleInput = view.findViewById(R.id.title_input);
-        subtitleInput = view.findViewById(R.id.subtitle_input);
+        loginInput = view.findViewById(R.id.login_input);
+        passwordInput = view.findViewById(R.id.password_input);
         dataView = view.findViewById(R.id.profile_data);
         Button saveButton = view.findViewById(R.id.save_button);
         Button loadButton = view.findViewById(R.id.load_button);
@@ -50,8 +47,26 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfileData() {
-        String title = titleInput.getText().toString();
-        String subtitle = subtitleInput.getText().toString();
+        String login = loginInput.getText().toString().trim();
+        String password = passwordInput.getText().toString().trim();
+
+        // Проверка на пустые поля с выделением ошибок
+        boolean hasError = false;
+
+        if (login.isEmpty()) {
+            loginInput.setError("Введите логин");
+            hasError = true;
+        }
+
+        if (password.isEmpty()) {
+            passwordInput.setError("Введите пароль");
+            hasError = true;
+        }
+
+        if (hasError) {
+            Toast.makeText(getContext(), "Заполните все обязательные поля", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         new AsyncTask<Void, Void, Long>() {
             @Override
@@ -59,8 +74,8 @@ public class ProfileFragment extends Fragment {
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
 
                 ContentValues values = new ContentValues();
-                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TITLE, title);
-                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_SUBTITLE, subtitle);
+                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_LOGIN, login);
+                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_PASSWORD, password);
 
                 return db.insert(
                         FeedReaderDbHelper.FeedEntry.TABLE_NAME,
@@ -75,11 +90,18 @@ public class ProfileFragment extends Fragment {
                     Toast.makeText(getContext(), "Ошибка сохранения", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getContext(), "Данные сохранены (ID: " + rowId + ")", Toast.LENGTH_SHORT).show();
-                    titleInput.setText("");
-                    subtitleInput.setText("");
+                    clearInputs();
+                    loadProfileData();
                 }
             }
         }.execute();
+    }
+
+    private void clearInputs() {
+        loginInput.setText("");
+        passwordInput.setText("");
+        loginInput.setError(null);
+        passwordInput.setError(null);
     }
 
     private void loadProfileData() {
@@ -98,16 +120,16 @@ public class ProfileFragment extends Fragment {
                 try {
                     while (cursor.moveToNext()) {
                         long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry._ID));
-                        String title = cursor.getString(
-                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TITLE)
+                        String login = cursor.getString(
+                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_LOGIN)
                         );
-                        String subtitle = cursor.getString(
-                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_SUBTITLE)
+                        String password = cursor.getString(
+                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_PASSWORD)
                         );
 
                         result.append("ID: ").append(id).append("\n")
-                                .append("Заголовок: ").append(title).append("\n")
-                                .append("Подзаголовок: ").append(subtitle).append("\n\n");
+                                .append("Логин: ").append(login).append("\n")
+                                .append("Пароль: ").append(password).append("\n\n");
                     }
                 } finally {
                     cursor.close();

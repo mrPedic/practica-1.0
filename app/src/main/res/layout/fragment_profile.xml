@@ -1,58 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".profileFragment">
+    tools:context=".ProfileFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
-        android:layout_marginLeft="150dp"
-        android:text="Profile Fragment" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <EditText
-            android:id="@+id/title_input"
+        <ImageView
+            android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Введите заголовок"
+            android:src="@drawable/unknownUserIcon" />
+
+        <EditText
+            android:id="@+id/login_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите логин"
             android:inputType="text"/>
 
         <EditText
-            android:id="@+id/subtitle_input"
+            android:id="@+id/password_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Введите подзаголовок"
-            android:inputType="text"
+            android:hint="Введите пароль"
+            android:inputType="textPassword"
             android:layout_marginTop="8dp"/>
 
         <Button
             android:id="@+id/save_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/color2"
             android:text="Сохранить"
-            android:layout_marginTop="16dp"/>
+            app:strokeWidth="10px"
+            app:strokeColor="@color/color3" />
 
         <Button
             android:id="@+id/load_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Загрузить данные"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/color2"
+            android:text="Показать данные"
+            app:strokeWidth="10px"
+            app:strokeColor="@color/color3"/>
 
-        <TextView
-            android:id="@+id/profile_data"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textSize="16sp"/>
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:id="@+id/profile_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"/>
+        </ScrollView>
     </LinearLayout>
 </FrameLayout>

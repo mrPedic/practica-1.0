@@ -11,8 +11,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + FeedEntry.TABLE_NAME + " (" +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_NAME_TITLE + " TEXT," +
-                    FeedEntry.COLUMN_NAME_SUBTITLE + " TEXT)";
+                    FeedEntry.COLUMN_NAME_LOGIN + " TEXT," +
+                    FeedEntry.COLUMN_NAME_PASSWORD + " TEXT)"
+            ;
 
     // SQL запрос для удаления таблицы
     private static final String SQL_DELETE_ENTRIES =
@@ -42,7 +43,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public static class FeedEntry {
         public static final String TABLE_NAME = "feed";
         public static final String _ID = "id";
-        public static final String COLUMN_NAME_TITLE = "title";
-        public static final String COLUMN_NAME_SUBTITLE = "subtitle";
+        public static final String COLUMN_NAME_LOGIN = "title";
+        public static final String COLUMN_NAME_PASSWORD = "subtitle";
     }
 }
