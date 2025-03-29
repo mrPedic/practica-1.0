@@ -16,9 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.practica.FeedReaderDbHelper;
-import com.example.practica.R;
-
 public class ProfileFragment extends Fragment {
     private FeedReaderDbHelper dbHelper;
     private EditText titleInput;
@@ -37,8 +34,8 @@ public class ProfileFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        titleInput = view.findViewById(R.id.title_input);
-        subtitleInput = view.findViewById(R.id.subtitle_input);
+        titleInput = view.findViewById(R.id.login_input);
+        subtitleInput = view.findViewById(R.id.password_input);
         dataView = view.findViewById(R.id.profile_data);
         Button saveButton = view.findViewById(R.id.save_button);
         Button loadButton = view.findViewById(R.id.load_button);
@@ -59,8 +56,8 @@ public class ProfileFragment extends Fragment {
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
 
                 ContentValues values = new ContentValues();
-                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TITLE, title);
-                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_SUBTITLE, subtitle);
+                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_LOGIN, title);
+                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_PASSWORD, subtitle);
 
                 return db.insert(
                         FeedReaderDbHelper.FeedEntry.TABLE_NAME,
@@ -77,6 +74,7 @@ public class ProfileFragment extends Fragment {
                     Toast.makeText(getContext(), "Данные сохранены (ID: " + rowId + ")", Toast.LENGTH_SHORT).show();
                     titleInput.setText("");
                     subtitleInput.setText("");
+                    loadProfileData();
                 }
             }
         }.execute();
@@ -99,10 +97,10 @@ public class ProfileFragment extends Fragment {
                     while (cursor.moveToNext()) {
                         long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry._ID));
                         String title = cursor.getString(
-                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TITLE)
+                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_LOGIN)
                         );
                         String subtitle = cursor.getString(
-                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_SUBTITLE)
+                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_PASSWORD)
                         );
 
                         result.append("ID: ").append(id).append("\n")
