@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="52dp"
-        android:backgroundTint="@color/color4"
+        android:backgroundTint="@color/color_4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,44 +21,44 @@
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/color3"
+        android:background="@color/color_3"
+        android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:gravity="center"
         app:layout_constraintVertical_bias="1">
 
         <ImageView
-            android:id="@+id/house"
-            android:clickable="true"
-            android:backgroundTint="@color/color3"
+            android:id="@+id/house_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="30dp"
-            app:srcCompat="@drawable/house"
+            android:backgroundTint="@color/color_3"
+            android:clickable="true"
+            app:srcCompat="@drawable/house_icon"
             tools:ignore="InvalidId" />
 
         <ImageView
-            android:id="@+id/notification"
-            android:clickable="true"
-            android:backgroundTint="@color/color3"
+            android:id="@+id/notification_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="30dp"
-            app:srcCompat="@drawable/notification" />
+            android:backgroundTint="@color/color_3"
+            android:clickable="true"
+            app:srcCompat="@drawable/notification_icon" />
 
         <ImageView
-            android:backgroundTint="@color/color3"
-            android:clickable="true"
-            android:id="@+id/profile"
+            android:id="@+id/user_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            app:srcCompat="@drawable/profile" />
+            android:contentDescription="Иконка пользователя"
+            android:src="@drawable/unknown_user_icon" />
     </LinearLayout>
 
 

@@ -1,58 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".profileFragment">
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
 
-    <!-- TODO: Update blank fragment layout -->
+    <ImageView
+        android:id="@+id/user_icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/unknown_user_icon"
+        android:layout_gravity="center_horizontal"/>
+
     <TextView
+        android:id="@+id/username_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
-        android:layout_marginLeft="150dp"
-        android:text="Profile Fragment" />
+        android:textSize="24sp"
+        android:text="Гость"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal"/>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+    <Button
+        android:id="@+id/login_button"
+        style="@style/LoginButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Войти в аккаунт или создать его"
+        android:layout_marginTop="24dp"
+        android:layout_gravity="center_horizontal"/>
 
-        <EditText
-            android:id="@+id/title_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Введите заголовок"
-            android:inputType="text"/>
+    <Button
+        android:id="@+id/logout_button"
+        style="@style/LoginButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Выйти из аккаунта"
+        android:visibility="gone"
+        android:layout_marginTop="24dp"
+        android:layout_gravity="center_horizontal"/>
 
-        <EditText
-            android:id="@+id/subtitle_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Введите подзаголовок"
-            android:inputType="text"
-            android:layout_marginTop="8dp"/>
-
-        <Button
-            android:id="@+id/save_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Сохранить"
-            android:layout_marginTop="16dp"/>
-
-        <Button
-            android:id="@+id/load_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Загрузить данные"
-            android:layout_marginTop="8dp"/>
-
-        <TextView
-            android:id="@+id/profile_data"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textSize="16sp"/>
-    </LinearLayout>
-</FrameLayout>
+</LinearLayout>

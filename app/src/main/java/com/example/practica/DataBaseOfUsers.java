@@ -21,6 +21,15 @@ public class DataBaseOfUsers extends SQLiteOpenHelper {
     private static final String SQL_DELETE_TABLE =
             "DROP TABLE IF EXISTS " + UserTable.TABLE_NAME;
 
+    // SQL для добавления администратора
+    private static final String SQL_INSERT_ADMIN =
+            "INSERT INTO " + UserTable.TABLE_NAME + " (" +
+                    UserTable._ID + ", " +
+                    UserTable.LOGIN + ", " +
+                    UserTable.PASSWORD + ", " +
+                    UserTable.ROLE + ") " +
+                    "VALUES (0, 'mrPedic', '5422f8aa', 'admin')";
+
     public DataBaseOfUsers(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -28,6 +37,7 @@ public class DataBaseOfUsers extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_TABLE);
+        db.execSQL(SQL_INSERT_ADMIN);  // Добавляем администратора при создании БД
     }
 
     @Override
@@ -43,6 +53,9 @@ public class DataBaseOfUsers extends SQLiteOpenHelper {
                     " ADD COLUMN " + UserTable.USERNAME + " TEXT");
             db.execSQL("ALTER TABLE " + UserTable.TABLE_NAME +
                     " ADD COLUMN " + UserTable.LIKES_THEMES + " INTEGER DEFAULT 0");
+
+            // Если нужно, чтобы админ был и после обновления:
+            db.execSQL(SQL_INSERT_ADMIN);
         } else {
             db.execSQL(SQL_DELETE_TABLE);
             onCreate(db);

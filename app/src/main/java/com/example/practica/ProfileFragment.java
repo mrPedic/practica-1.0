@@ -1,131 +1,72 @@
 package com.example.practica;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.practica.FeedReaderDbHelper;
-import com.example.practica.R;
-
 public class ProfileFragment extends Fragment {
-    private FeedReaderDbHelper dbHelper;
-    private EditText titleInput;
-    private EditText subtitleInput;
-    private TextView dataView;
+    private Button loginButton, logoutButton; // Добавьте logoutButton
+    private ImageView userIcon;
+    private TextView usernameText;
+    private SharedPreferences prefs;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        dbHelper = new FeedReaderDbHelper(requireContext());
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-
-        titleInput = view.findViewById(R.id.title_input);
-        subtitleInput = view.findViewById(R.id.subtitle_input);
-        dataView = view.findViewById(R.id.profile_data);
-        Button saveButton = view.findViewById(R.id.save_button);
-        Button loadButton = view.findViewById(R.id.load_button);
-
-        saveButton.setOnClickListener(v -> saveProfileData());
-        loadButton.setOnClickListener(v -> loadProfileData());
-
-        return view;
-    }
-
-    private void saveProfileData() {
-        String title = titleInput.getText().toString();
-        String subtitle = subtitleInput.getText().toString();
-
-        new AsyncTask<Void, Void, Long>() {
-            @Override
-            protected Long doInBackground(Void... voids) {
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-                ContentValues values = new ContentValues();
-                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TITLE, title);
-                values.put(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_SUBTITLE, subtitle);
-
-                return db.insert(
-                        FeedReaderDbHelper.FeedEntry.TABLE_NAME,
-                        null,
-                        values
-                );
-            }
-
-            @Override
-            protected void onPostExecute(Long rowId) {
-                if (rowId == -1) {
-                    Toast.makeText(getContext(), "Ошибка сохранения", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "Данные сохранены (ID: " + rowId + ")", Toast.LENGTH_SHORT).show();
-                    titleInput.setText("");
-                    subtitleInput.setText("");
-                }
-            }
-        }.execute();
-    }
-
-    private void loadProfileData() {
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... voids) {
-                StringBuilder result = new StringBuilder();
-                result.append("Сохраненные данные:\n\n");
-
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
-                Cursor cursor = db.query(
-                        FeedReaderDbHelper.FeedEntry.TABLE_NAME,
-                        null, null, null, null, null, null
-                );
-
-                try {
-                    while (cursor.moveToNext()) {
-                        long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry._ID));
-                        String title = cursor.getString(
-                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_TITLE)
-                        );
-                        String subtitle = cursor.getString(
-                                cursor.getColumnIndexOrThrow(FeedReaderDbHelper.FeedEntry.COLUMN_NAME_SUBTITLE)
-                        );
-
-                        result.append("ID: ").append(id).append("\n")
-                                .append("Заголовок: ").append(title).append("\n")
-                                .append("Подзаголовок: ").append(subtitle).append("\n\n");
-                    }
-                } finally {
-                    cursor.close();
-                }
-
-                return result.toString();
-            }
-
-            @Override
-            protected void onPostExecute(String result) {
-                dataView.setText(result);
-            }
-        }.execute();
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
     @Override
-    public void onDestroy() {
-        dbHelper.close();
-        super.onDestroy();
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        prefs = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        loginButton = view.findViewById(R.id.login_button);
+        logoutButton = view.findViewById(R.id.logout_button); // Инициализируйте кнопку
+        usernameText = view.findViewById(R.id.username_text);
+        userIcon = view.findViewById(R.id.user_icon);
+
+        // Обработчик для кнопки выхода
+        logoutButton.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).logout(); // Вызов метода выхода из MainActivity
+            }
+        });
+
+        loginButton.setOnClickListener(v -> {
+            startActivity(new Intent(getActivity(), Login_SignUpActivity.class));
+        });
+
+        updateUI(isUserLoggedIn());
+    }
+
+    public void updateUI(boolean isLoggedIn) {
+        if (getView() == null) return;
+
+        loginButton.setVisibility(isLoggedIn ? View.GONE : View.VISIBLE);
+        logoutButton.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE); // Управление видимостью
+        usernameText.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
+
+        if (isLoggedIn) {
+            userIcon.setImageResource(R.drawable.known_user_icon);
+            usernameText.setText(prefs.getString("username", ""));
+        } else {
+            userIcon.setImageResource(R.drawable.unknown_user_icon);
+        }
+    }
+
+    private boolean isUserLoggedIn() {
+        return prefs.getBoolean("is_logged_in", false);
     }
 }
