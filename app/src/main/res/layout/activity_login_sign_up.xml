@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_4"
+    tools:context=".Login_SignUpActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:text="Вход в систему"
+            android:textColor="@color/color_1"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/login_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Логин"
+            android:textColorHint="@color/color_3"
+            android:textColor="@color/color_1"
+            android:inputType="text"
+            android:backgroundTint="@color/color_3"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <EditText
+                android:id="@+id/password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Пароль"
+                android:textColorHint="@color/color_3"
+                android:textColor="@color/color_1"
+                android:inputType="textPassword"
+                android:backgroundTint="@color/color_3"
+                android:layout_toStartOf="@id/toggle_password_visibility"/>
+
+            <ImageButton
+                android:id="@+id/toggle_password_visibility"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_visibility_off"
+                android:contentDescription="Показать пароль"
+                android:tint="@color/color_3"/>
+        </RelativeLayout>
+
+        <!-- Закругленные кнопки с использованием стиля -->
+        <Button
+            android:id="@+id/login_button"
+            style="@style/LoginButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Войти"
+            android:visibility="visible"/>
+
+        <Button
+            android:id="@+id/register_button"
+            style="@style/LoginButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Зарегистрироваться"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/switch_mode_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="Нет аккаунта? Зарегистрируйтесь"
+            android:textColor="@color/color_1"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/show_accounts_button"
+            style="@style/LoginButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="40dp"
+            android:text="Показать все аккаунты"/>
+
+        <ScrollView
+            android:id="@+id/accounts_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/accounts_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_1"
+                android:textSize="14sp"
+                android:padding="8dp"/>
+        </ScrollView>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

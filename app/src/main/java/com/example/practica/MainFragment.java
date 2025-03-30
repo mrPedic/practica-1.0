@@ -1,18 +1,36 @@
 package com.example.practica;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-public class MainFragment extends Fragment {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+public class MainFragment extends Fragment implements UserStateListener {
+
+    private TextView welcomeText;
+
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        return view;
+    }
 
-        return inflater.inflate(R.layout.fragment_main, container, false);
+    @Override
+    public void onUserStateChanged(boolean isLoggedIn) {
+        if (welcomeText != null) {
+            welcomeText.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
+
+            // Можно добавить дополнительные изменения UI
+            if (isLoggedIn) {
+                String username = ((MainActivity) requireActivity()).getCurrentUsername();
+                welcomeText.setText("Добро пожаловать, " + username + "!");
+            }
+        }
     }
 }
