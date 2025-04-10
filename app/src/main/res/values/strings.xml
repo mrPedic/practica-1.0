@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ds</string>
+    <string name="app_name">PlaceFinder</string>
     <string name="login_register">Войти / Зарегистрироваться</string>
     <string name="edit_profile">Редактировать профиль</string>
     <string name="settings">Настройки</string>

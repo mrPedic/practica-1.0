@@ -266,7 +266,6 @@ public class Login_SignUpActivity extends AppCompatActivity {
             passwordInput.setError("Пароль должен содержать минимум 6 символов");
             isValid = false;
         }
-
         return isValid;
     }
 

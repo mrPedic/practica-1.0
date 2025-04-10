@@ -1,10 +1,11 @@
 package com.example.practica;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -15,12 +16,13 @@ import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView btnToMain, btnToNotifications;
-    private int currentSelectedItem; // Не инициализируем здесь
+    private ImageView btnToMain, btnToNotifications, btnToAddReviews;
+    private int currentSelectedItem;
     private ImageView userIcon;
     private FrameLayout frameLayout;
     private MainFragment mainFragment = new MainFragment();
     private ProfileFragment profileFragment = new ProfileFragment();
+    private AddReviewsFragment addReviewsFragment = new AddReviewsFragment();
     private NotificationFragment notificationFragment = new NotificationFragment();
 
     @Override
@@ -28,22 +30,48 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initializeViews();
-        currentSelectedItem = btnToMain.getId(); // Инициализируем после initializeViews()
-        // Скрываем ActionBar
+        // Инициализация БД только один раз
+        DataBaseOfInstitutions dataBaseOfInstitutions = new DataBaseOfInstitutions(this);
+        dataBaseOfInstitutions.getWritableDatabase().close(); // Закрываем соединение сразу
+
+        initializeViews(); // Вызывается ОДИН раз
+        currentSelectedItem = btnToMain.getId();
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
 
-        initializeViews();
         setupNavigation();
-
-        // Проверяем данные из Intent (после входа)
         checkLoginFromIntent();
-
-        // Всегда открываем MainFragment при запуске
-        setFragment(mainFragment);
         setupNavigationIcons();
+
+        // Первоначальная загрузка фрагмента без анимации
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frameLayout, mainFragment)
+                .commit();
+
+        new Thread(() -> {
+            DataBaseOfInstitutions db = new DataBaseOfInstitutions(this);
+            if(db.getAllInstitutions().isEmpty()) {
+                Institution institution = new Institution();
+                institution.setName("Тестовое заведение");
+                institution.setAddress_text("ул. Тестовая, 1");
+                db.addInstitution(institution);
+            }
+        }).start();
+    }
+
+    public static String getCurrentUsername(Context context) {
+        return context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                .getString("username", "Гость");
+    }
+
+    public void refreshReviews() {
+        MainFragment newFragment = new MainFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frameLayout, newFragment);
+        transaction.commit();
     }
 
     private void initializeViews() {
@@ -51,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         btnToMain = findViewById(R.id.house_icon);
         btnToNotifications = findViewById(R.id.notification_icon);
         userIcon = findViewById(R.id.user_icon);
+        btnToAddReviews = findViewById(R.id.add_reviews_icon);
     }
 
     private void checkLoginFromIntent() {
@@ -71,36 +100,30 @@ public class MainActivity extends AppCompatActivity {
     private void updateUserState() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
-        // Обновляем иконку пользователя в MainActivity
         userIcon.setImageResource(isLoggedIn ?
                 R.drawable.known_user_icon :
                 R.drawable.unknown_user_icon);
-        // Обновляем цвет иконок навигации
         setupNavigationIcons();
-        // Обновляем ProfileFragment, если он активен
+
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frameLayout);
         if (currentFragment instanceof ProfileFragment) {
             ((ProfileFragment) currentFragment).updateUI(isLoggedIn);
         }
     }
 
-    public String getCurrentUsername() {
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        return prefs.getString("username", "");
-    }
-
     private void setFragment(Fragment fragment) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-        ft.setCustomAnimations(
-                R.anim.slide_in_right,  // Вход нового фрагмента
-                R.anim.fade_out,        // Выход текущего фрагмента
-                R.anim.fade_in,         // Вход при возврате (back stack)
-                R.anim.slide_out_left   // Выход при возврате
-        );
-
-        ft.replace(R.id.frameLayout, fragment);
-        ft.commit();
+        if (!isFinishing() && !isDestroyed()) {
+            setupNavigationIcons();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(
+                    R.anim.slide_in_right,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.slide_out_left
+            );
+            ft.replace(R.id.frameLayout, fragment);
+            ft.commit();
+        }
     }
 
     public void handleLoginSuccess(String login, String username) {
@@ -110,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
                 .putString("user_login", login)
                 .putString("username", username)
                 .apply();
-        // Обновляем UI сразу
         updateUserState();
         Toast.makeText(this, "Вход выполнен успешно", Toast.LENGTH_SHORT).show();
     }
@@ -118,49 +140,51 @@ public class MainActivity extends AppCompatActivity {
     public void logout() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         prefs.edit().clear().apply();
-        updateUserState(); // Этот метод должен обновлять навигацию и иконки
+        updateUserState();
         Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show();
     }
-    private void setupNavigationIcons() {
-        // Сброс всех иконок к цвету по умолчанию
-        resetAllIcons();
 
-        // Установка цвета для активной иконки
+    private void setupNavigationIcons() {
+        resetAllIcons();
+        int activeColor = ContextCompat.getColor(this, R.color.color_2);
+
         if (currentSelectedItem == btnToMain.getId()) {
-            btnToMain.setColorFilter(ContextCompat.getColor(this, R.color.color_2));
+            btnToMain.setColorFilter(activeColor);
         } else if (currentSelectedItem == btnToNotifications.getId()) {
-            btnToNotifications.setColorFilter(ContextCompat.getColor(this, R.color.color_2));
+            btnToNotifications.setColorFilter(activeColor);
         } else if (currentSelectedItem == userIcon.getId()) {
-            userIcon.setColorFilter(ContextCompat.getColor(this, R.color.color_2));
+            userIcon.setColorFilter(activeColor);
+        } else if (currentSelectedItem == btnToAddReviews.getId()) {
+            btnToAddReviews.setColorFilter(activeColor);
         }
     }
 
     private void resetAllIcons() {
-        btnToMain.setColorFilter(ContextCompat.getColor(this, R.color.color_1));
-        btnToNotifications.setColorFilter(ContextCompat.getColor(this, R.color.color_1));
-        userIcon.setColorFilter(ContextCompat.getColor(this, R.color.color_1));
+        int defaultColor = ContextCompat.getColor(this, R.color.color_1);
+        btnToMain.setColorFilter(defaultColor);
+        btnToNotifications.setColorFilter(defaultColor);
+        userIcon.setColorFilter(defaultColor);
+        btnToAddReviews.setColorFilter(defaultColor);
     }
 
     private void setFragment(Fragment fragment, int selectedItemId) {
         currentSelectedItem = selectedItemId;
-        setupNavigationIcons(); // Обновляем иконки
-
+        setupNavigationIcons();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out_left
+        );
         ft.replace(R.id.frameLayout, fragment);
         ft.commit();
     }
 
     private void setupNavigation() {
-        btnToMain.setOnClickListener(v -> {
-            setFragment(mainFragment, btnToMain.getId());
-        });
-
-        btnToNotifications.setOnClickListener(v -> {
-            setFragment(notificationFragment, btnToNotifications.getId());
-        });
-
-        userIcon.setOnClickListener(v -> {
-            setFragment(profileFragment, userIcon.getId());
-        });
+        btnToMain.setOnClickListener(v -> setFragment(mainFragment, btnToMain.getId()));
+        btnToNotifications.setOnClickListener(v -> setFragment(notificationFragment, btnToNotifications.getId()));
+        userIcon.setOnClickListener(v -> setFragment(profileFragment, userIcon.getId()));
+        btnToAddReviews.setOnClickListener(v -> setFragment(addReviewsFragment, btnToAddReviews.getId()));
     }
 }
