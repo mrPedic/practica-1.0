@@ -1,22 +1,27 @@
 package com.example.practica;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int STORAGE_PERMISSION_CODE = 101;
 
-    private ImageView btnToMain, btnToNotifications, btnToAddReviews;
+    private ImageView btnToMain, btnToNotifications, btnToAddReviews, btnToSettings;
     private int currentSelectedItem;
     private ImageView userIcon;
     private FrameLayout frameLayout;
@@ -24,6 +29,22 @@ public class MainActivity extends AppCompatActivity {
     private ProfileFragment profileFragment = new ProfileFragment();
     private AddReviewsFragment addReviewsFragment = new AddReviewsFragment();
     private NotificationFragment notificationFragment = new NotificationFragment();
+    private SettingsFragment settingsFragment = new SettingsFragment();
+    private InstitutionProfileFragment institutionProfileFragment = new InstitutionProfileFragment();
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,22 +77,10 @@ public class MainActivity extends AppCompatActivity {
             if(db.getAllInstitutions().isEmpty()) {
                 Institution institution = new Institution();
                 institution.setName("Тестовое заведение");
-                institution.setAddress_text("ул. Тестовая, 1");
+                institution.setAddressText("ул. Тестовая, 1");
                 db.addInstitution(institution);
             }
         }).start();
-    }
-
-    public static String getCurrentUsername(Context context) {
-        return context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-                .getString("username", "Гость");
-    }
-
-    public void refreshReviews() {
-        MainFragment newFragment = new MainFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frameLayout, newFragment);
-        transaction.commit();
     }
 
     private void initializeViews() {
@@ -80,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         btnToNotifications = findViewById(R.id.notification_icon);
         userIcon = findViewById(R.id.user_icon);
         btnToAddReviews = findViewById(R.id.add_reviews_icon);
+        btnToSettings = findViewById(R.id.settings_icon);
     }
 
     private void checkLoginFromIntent() {
@@ -91,38 +101,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        updateUserState();
-    }
-
     private void updateUserState() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
-        userIcon.setImageResource(isLoggedIn ?
-                R.drawable.known_user_icon :
-                R.drawable.unknown_user_icon);
-        setupNavigationIcons();
+        String role = prefs.getString("user_role", "guest");
 
-        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frameLayout);
-        if (currentFragment instanceof ProfileFragment) {
-            ((ProfileFragment) currentFragment).updateUI(isLoggedIn);
+        // Обновляем иконку в зависимости от роли
+        if (role.equals("institution")) {
+            userIcon.setImageResource(R.drawable.ic_profile_in_circle);
+        } else {
+            userIcon.setImageResource(isLoggedIn ?
+                    R.drawable.ic_known_user :
+                    R.drawable.ic_unknown_user);
         }
-    }
 
-    private void setFragment(Fragment fragment) {
-        if (!isFinishing() && !isDestroyed()) {
-            setupNavigationIcons();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(
-                    R.anim.slide_in_right,
-                    R.anim.fade_out,
-                    R.anim.fade_in,
-                    R.anim.slide_out_left
-            );
-            ft.replace(R.id.frameLayout, fragment);
-            ft.commit();
+        // Дополнительная логика для заведений
+        if (role.equals("institution")) {
+            btnToAddReviews.setVisibility(View.VISIBLE);
         }
     }
 
@@ -137,16 +132,9 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Вход выполнен успешно", Toast.LENGTH_SHORT).show();
     }
 
-    public void logout() {
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        prefs.edit().clear().apply();
-        updateUserState();
-        Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show();
-    }
-
     private void setupNavigationIcons() {
         resetAllIcons();
-        int activeColor = ContextCompat.getColor(this, R.color.color_2);
+        int activeColor = ContextCompat.getColor(this, R.color.color_1);
 
         if (currentSelectedItem == btnToMain.getId()) {
             btnToMain.setColorFilter(activeColor);
@@ -156,15 +144,33 @@ public class MainActivity extends AppCompatActivity {
             userIcon.setColorFilter(activeColor);
         } else if (currentSelectedItem == btnToAddReviews.getId()) {
             btnToAddReviews.setColorFilter(activeColor);
+        }else if (currentSelectedItem == btnToSettings.getId()) {
+            btnToSettings.setColorFilter(activeColor);
         }
     }
 
     private void resetAllIcons() {
-        int defaultColor = ContextCompat.getColor(this, R.color.color_1);
+        int defaultColor = ContextCompat.getColor(this, R.color.color_2);
         btnToMain.setColorFilter(defaultColor);
         btnToNotifications.setColorFilter(defaultColor);
         userIcon.setColorFilter(defaultColor);
         btnToAddReviews.setColorFilter(defaultColor);
+        btnToSettings.setColorFilter(defaultColor);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUserState();
+        // Обновление данных при возвращении из редактирования
+        if (currentSelectedItem == userIcon.getId()) {
+            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+            String role = prefs.getString("user_role", "guest");
+
+            if (role.equals("institution")) {
+                setFragment(institutionProfileFragment, userIcon.getId());
+            }
+        }
     }
 
     private void setFragment(Fragment fragment, int selectedItemId) {
@@ -184,7 +190,20 @@ public class MainActivity extends AppCompatActivity {
     private void setupNavigation() {
         btnToMain.setOnClickListener(v -> setFragment(mainFragment, btnToMain.getId()));
         btnToNotifications.setOnClickListener(v -> setFragment(notificationFragment, btnToNotifications.getId()));
-        userIcon.setOnClickListener(v -> setFragment(profileFragment, userIcon.getId()));
+
+        // Модифицируем обработчик для userIcon
+        userIcon.setOnClickListener(v -> {
+            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+            String role = prefs.getString("user_role", "guest");
+
+            if (role.equals("institution")) {
+                setFragment(institutionProfileFragment, userIcon.getId());
+            } else {
+                setFragment(profileFragment, userIcon.getId());
+            }
+        });
+
         btnToAddReviews.setOnClickListener(v -> setFragment(addReviewsFragment, btnToAddReviews.getId()));
+        btnToSettings.setOnClickListener(v -> setFragment(settingsFragment, btnToSettings.getId()));
     }
 }

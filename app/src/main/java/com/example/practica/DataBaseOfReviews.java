@@ -27,16 +27,15 @@ public class DataBaseOfReviews extends SQLiteOpenHelper {
                     ReviewTable.ADDRESS_LINK + " TEXT," +
                     ReviewTable.USERNAME + " TEXT NOT NULL," +
                     "FOREIGN KEY(" + ReviewTable.INSTITUTION_ID + ") REFERENCES " +
-                    DataBaseOfInstitutions.InstitutionTable.TABLE_NAME +
-                    "(" + DataBaseOfInstitutions.InstitutionTable._ID + ") ON DELETE CASCADE);";
+                    DataBaseOfInstitutions.TABLE_INSTITUTIONS + // Используем правильное имя таблицы
+                    "(" + DataBaseOfInstitutions.COLUMN_ID + ") ON DELETE CASCADE);";
 
     // SQL для создания таблицы заведений
     private static final String SQL_CREATE_INSTITUTIONS =
-            "CREATE TABLE " + DataBaseOfInstitutions.InstitutionTable.TABLE_NAME + " (" +
-                    DataBaseOfInstitutions.InstitutionTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    DataBaseOfInstitutions.InstitutionTable.NAME + " TEXT NOT NULL," +
-                    DataBaseOfInstitutions.InstitutionTable.ADDRESS_TEXT + " TEXT NOT NULL," +
-                    DataBaseOfInstitutions.InstitutionTable.ADDRESS_LINK + " TEXT);";
+            "CREATE TABLE " + DataBaseOfInstitutions.DATABASE_NAME + " (" +
+                    DataBaseOfInstitutions.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    DataBaseOfInstitutions.COLUMN_NAME + " TEXT NOT NULL," +
+                    DataBaseOfInstitutions.COLUMN_ADDRESS + " TEXT NOT NULL)";
 
     public DataBaseOfReviews(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -53,7 +52,7 @@ public class DataBaseOfReviews extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + ReviewTable.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + DataBaseOfInstitutions.InstitutionTable.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DataBaseOfInstitutions.DATABASE_NAME);
         onCreate(db);
     }
 
@@ -74,11 +73,11 @@ public class DataBaseOfReviews extends SQLiteOpenHelper {
                     "r." + ReviewTable.ADDRESS_TEXT + ", " +
                     "r." + ReviewTable.ADDRESS_LINK + ", " +
                     "r." + ReviewTable.USERNAME + ", " +
-                    "r." + ReviewTable.IMAGE_URL + ", " + // Добавлено получение image_url
-                    "i." + DataBaseOfInstitutions.InstitutionTable.NAME + " AS institution_name " +
+                    "r." + ReviewTable.IMAGE_URL + ", " +
+                    "i." + DataBaseOfInstitutions.COLUMN_NAME + " AS institution_name " +
                     "FROM " + ReviewTable.TABLE_NAME + " r " +
-                    "LEFT JOIN " + DataBaseOfInstitutions.InstitutionTable.TABLE_NAME + " i " + // Изменено на LEFT JOIN
-                    "ON r." + ReviewTable.INSTITUTION_ID + " = i." + DataBaseOfInstitutions.InstitutionTable._ID;
+                    "LEFT JOIN " + DataBaseOfInstitutions.TABLE_INSTITUTIONS + " i " + // Используем правильное имя таблицы
+                    "ON r." + ReviewTable.INSTITUTION_ID + " = i." + DataBaseOfInstitutions.COLUMN_ID;
 
             cursor = db.rawQuery(query, null);
 

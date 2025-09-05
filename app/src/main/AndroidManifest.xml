@@ -2,34 +2,70 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <application
         android:allowBackup="true"
-        android:enableOnBackInvokedCallback="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_roamly"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Practica"
         tools:targetApi="31">
         <activity
-            android:name=".ShowAllDataOfAllUsersActivity"
+            android:name=".MapPickerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChangeDataOfInstitutionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UserProfileActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ShowAllUsersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreateInstitutionAccountActivity"
+            android:label="Регистрация заведения"
+            android:parentActivityName=".Login_SignUpActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".AdminMenuActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Login_SignUpActivity"
-            android:exported="false"/>
+        <activity
+            android:name=".Login_SignUpActivity"
+            android:exported="false" />
 
+        <receiver
+            android:name=".ProfileUpdateReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="LOGIN_UPDATED" />
+                <action android:name="USERNAME_UPDATED" />
+            </intent-filter>
+        </receiver>
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDNZqCaujsQSaPSn0pmxYRkPH48O4Yl3QI" />
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
+
 </manifest>

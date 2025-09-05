@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/color_4"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_marginTop="150dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Убраны лишние TextView с названиями полей -->
+
+        <EditText
+            android:id="@+id/etLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Логин"
+            android:textColor="@color/color_1"
+            android:inputType="textEmailAddress"
+            android:backgroundTint="@color/color_3"
+            android:layout_marginBottom="8dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/toggle_password_visibility_user_profile_activity"
+                android:textColor="@color/color_2"
+                android:hint="Пароль"
+                android:textColorHint="@color/color_3"
+                android:inputType="textPassword"
+                android:backgroundTint="@color/color_3"
+                android:layout_marginBottom="8dp"/>
+
+            <ImageButton
+                android:id="@+id/toggle_password_visibility_user_profile_activity"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_visibility_off"
+                android:contentDescription="Показать пароль"
+                app:tint="@color/color_3" />
+
+        </RelativeLayout>
+
+
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:backgroundTint="@color/color_3"
+            android:layout_width="match_parent"
+            android:textColor="@color/color_1"
+            android:layout_height="wrap_content"
+            android:hint="Имя пользователя"
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/color_3"
+            android:elevation="24dp"
+            android:text="СОХРАНИТЬ"
+            android:textAllCaps="false"
+            android:textColor="@color/color_1"
+            app:cornerRadius="160dp" />
+
+    </LinearLayout>
+</ScrollView>

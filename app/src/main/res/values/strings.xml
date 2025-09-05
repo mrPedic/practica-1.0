@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">PlaceFinder</string>
+    <string-array name="theme_options">
+        <item>Светлая тема</item>
+        <item>Тёмная тема</item>
+        <item>Системная тема</item>
+    </string-array>
+    <string-array name="font_sizes">
+        <item>Маленький</item>
+        <item>Стандартный</item>
+        <item>Крупный</item>
+    </string-array>
+    <string name="app_name">Roamly</string>
     <string name="login_register">Войти / Зарегистрироваться</string>
     <string name="edit_profile">Редактировать профиль</string>
     <string name="settings">Настройки</string>

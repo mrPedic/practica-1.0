@@ -23,7 +23,7 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:background="@color/color_3"
         android:gravity="center"
         android:orientation="horizontal"
@@ -35,40 +35,48 @@
         app:layout_constraintVertical_bias="1">
 
         <ImageView
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:id="@+id/settings_icon"
+            android:clickable="true"
+            android:layout_marginEnd="30dp"
+            app:srcCompat = "@drawable/ic_settings"/>
+
+        <ImageView
             android:id="@+id/add_reviews_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginEnd="30dp"
             android:backgroundTint="@color/color_3"
             android:clickable="true"
-            app:srcCompat="@drawable/add_reviews_icon"
+            app:srcCompat="@drawable/ic_add_reviews"
             tools:ignore="InvalidId" />
 
         <ImageView
             android:id="@+id/house_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginEnd="30dp"
             android:backgroundTint="@color/color_3"
             android:clickable="true"
-            app:srcCompat="@drawable/house_icon"
+            app:srcCompat="@drawable/ic_house"
             tools:ignore="InvalidId" />
 
         <ImageView
             android:id="@+id/notification_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginEnd="30dp"
             android:backgroundTint="@color/color_3"
             android:clickable="true"
-            app:srcCompat="@drawable/notification_icon" />
+            app:srcCompat="@drawable/ic_otification" />
 
         <ImageView
             android:id="@+id/user_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:contentDescription="Иконка пользователя"
-            android:src="@drawable/unknown_user_icon" />
+            android:src="@drawable/ic_unknown_user" />
     </LinearLayout>
 
 

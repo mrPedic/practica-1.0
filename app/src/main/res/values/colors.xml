@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_1">#F7F7F7</color>
-    <color name="color_2">#ffb22c</color>
-    <color name="color_3">#854836</color>
-    <color name="color_4">#000000</color>
+    <color name="color_1">#212227</color>
+    <color name="color_2">#637074</color>
+    <color name="color_3">#8693AB</color>
+    <color name="color_4">#AAB9CF</color>
+    <color name="colorForRatingBar">#596585</color>
 </resources>

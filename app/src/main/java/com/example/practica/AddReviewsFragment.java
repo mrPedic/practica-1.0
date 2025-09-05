@@ -1,9 +1,10 @@
 package com.example.practica;
 
-import static androidx.fragment.app.FragmentManager.TAG;
-
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.Spinner;
@@ -26,25 +28,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 public class AddReviewsFragment extends Fragment {
 
+    private ImageView ivSelectedImage;
+    private Uri selectedImageUri;
+    private static final int PICK_IMAGE_REQUEST = 1;
     private static final String TAG = "AddReviewsFragment";
-    // Удаляем ненужные поля для адреса
     private EditText etReviewText;
     private Button btnSubmit, btnShowAllReviews;
     private Spinner spinnerInstitutions;
     private RatingBar ratingBar;
     private DataBaseOfInstitutions dbInstitutions;
     private SharedPreferences prefs;
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private LinearLayout llReviewsContainer;
     private TextView tvExistingReviewsLabel;
-    private EditText etImageUrl;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -52,28 +55,64 @@ public class AddReviewsFragment extends Fragment {
         dbInstitutions = new DataBaseOfInstitutions(context);
     }
 
-        private void initViews(View view) {
+    private void initViews(View view) {
             try {
+
+                Button btnPickImage = view.findViewById(R.id.btnPickImage);
+                ivSelectedImage = view.findViewById(R.id.ivSelectedImage);
+
+                btnPickImage.setOnClickListener(v -> openImagePicker());
+
                 spinnerInstitutions = view.findViewById(R.id.spinnerInstitutions);
+
                 ratingBar = view.findViewById(R.id.ratingBar);
+
                 ratingBar.setStepSize(0.5f); // Фиксированный шаг
                 ratingBar.setRating(2.5f);
+
                 etReviewText = view.findViewById(R.id.etReviewText);
                 btnSubmit = view.findViewById(R.id.btnSubmit);
                 btnShowAllReviews = view.findViewById(R.id.btnShowAllReviews);
                 llReviewsContainer = view.findViewById(R.id.llReviewsContainer);
-                etImageUrl = view.findViewById(R.id.etImageUrl);
                 tvExistingReviewsLabel = view.findViewById(R.id.tvExistingReviewsLabel);
-            } catch (Exception e) {
+                } catch (Exception e) {
                 handleInitError(e);
             }
         }
 
-        private void handleInitError(Exception e) {
+    private void handleInitError(Exception e) {
             Log.e(TAG, "View initialization error", e);
             showToast("Ошибка инициализации: " + e.getMessage());
         }
 
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Выберите фото"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            selectedImageUri = data.getData();
+            try {
+                // Получаем постоянные права на доступ
+                requireContext().getContentResolver().takePersistableUriPermission(
+                        selectedImageUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                );
+                ivSelectedImage.setVisibility(View.VISIBLE);
+                Glide.with(this)
+                        .load(selectedImageUri)
+                        .override(200, 200)
+                        .centerCrop()
+                        .into(ivSelectedImage);
+            } catch (Exception e) {
+                showToast("Ошибка загрузки изображения");
+            }
+        }
+    }
 
     private boolean validateForm() {
         // Проверка выбора заведения
@@ -101,22 +140,24 @@ public class AddReviewsFragment extends Fragment {
 
     private Review createReviewFromInput() {
         Institution institution = (Institution) spinnerInstitutions.getSelectedItem();
-        String reviewText = etReviewText.getText() != null
-                ? etReviewText.getText().toString().trim()
-                : "";
 
         Review review = new Review(
                 institution.getId(),
                 ratingBar.getRating(),
-                reviewText, // Гарантированно не null
+                etReviewText.getText().toString().trim(),
                 institution.getName(),
                 prefs.getString("username", "Гость")
         );
-        review.setImageUrl(etImageUrl.getText().toString().trim());
+
+        // Сохраняем только URI выбранного изображения
+        if (selectedImageUri != null) {
+            review.setImageUrl(selectedImageUri.toString());
+        }
+
         return review;
     }
 
-        private void processReviewSubmission() {
+    private void processReviewSubmission() {
             try {
                 Review review = createReviewFromInput();
                 logReviewData(review); // Логирование данных
@@ -128,7 +169,7 @@ public class AddReviewsFragment extends Fragment {
             }
         }
 
-        private void logReviewData(Review review) {
+    private void logReviewData(Review review) {
             Log.d(TAG, "Attempting to save review: "
                     + "\nInstitution ID: " + review.getInstitutionId()
                     + "\nRating: " + review.getRating()
@@ -137,13 +178,13 @@ public class AddReviewsFragment extends Fragment {
         }
 
 
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater,
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_add_reviews, container, false);
         }
-        @Override
-        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
             prefs = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
             initViews(view);
@@ -198,7 +239,7 @@ public class AddReviewsFragment extends Fragment {
         }).start();
     }
 
-        private void handleSubmissionResult(boolean success) {
+    private void handleSubmissionResult(boolean success) {
             if (success) {
                 showToast("Отзыв сохранён!");
                 resetForm();
@@ -208,7 +249,7 @@ public class AddReviewsFragment extends Fragment {
             }
         }
 
-        private void setupSpinner() {
+    private void setupSpinner() {
             new Thread(() -> {
                 try {
                     final List<Institution> institutions = dbInstitutions.getAllInstitutions();
@@ -220,7 +261,7 @@ public class AddReviewsFragment extends Fragment {
             }).start();
         }
 
-        private void updateSpinnerUI(List<Institution> institutions) {
+    private void updateSpinnerUI(List<Institution> institutions) {
             if (institutions == null || institutions.isEmpty()) {
                 showToast("Нет доступных заведений");
                 return;
@@ -235,7 +276,7 @@ public class AddReviewsFragment extends Fragment {
                 @Override
                 public View getView(int position, View convertView, @NonNull ViewGroup parent) {
                     TextView view = (TextView) super.getView(position, convertView, parent);
-                    view.setText(getItem(position).getAddress_text());
+                    view.setText(getItem(position).getAddressText());
                     return view;
                 }
 
@@ -251,7 +292,7 @@ public class AddReviewsFragment extends Fragment {
             spinnerInstitutions.setAdapter(adapter);
         }
 
-        private void setupSubmitButton() {
+    private void setupSubmitButton() {
             btnSubmit.setOnClickListener(v -> {
                 if (!isUserLoggedIn()) return;
                 if (!validateForm()) return;
@@ -260,7 +301,7 @@ public class AddReviewsFragment extends Fragment {
             });
         }
 
-        private boolean isUserLoggedIn() {
+    private boolean isUserLoggedIn() {
             if (!prefs.getBoolean("is_logged_in", false)) {
                 showToast("Требуется авторизация");
                 return false;
@@ -279,14 +320,18 @@ public class AddReviewsFragment extends Fragment {
         }
     }
 
-        private void resetForm() {
-            etReviewText.getText().clear();
-            if (spinnerInstitutions.getCount() > 0) {
-                spinnerInstitutions.setSelection(0);
-            }
-            etImageUrl.setText("");
-            ratingBar.setRating(2.5f);
+    private void resetForm() {
+        etReviewText.getText().clear();
+        if (spinnerInstitutions.getCount() > 0) {
+            spinnerInstitutions.setSelection(0);
         }
+        ratingBar.setRating(2.5f);
+
+        // Сбрасываем изображение
+        ivSelectedImage.setVisibility(View.GONE);
+        ivSelectedImage.setImageDrawable(null);
+        selectedImageUri = null;
+    }
 
     private void setupShowReviewsButton() {
         btnShowAllReviews.setOnClickListener(v -> {
@@ -305,11 +350,11 @@ public class AddReviewsFragment extends Fragment {
         });
     }
 
-        private void setupTextWatchers() {
-            addTextWatcher(etReviewText);
-        }
+    private void setupTextWatchers() {
+        addTextWatcher(etReviewText);
+    }
 
-        private void addTextWatcher(EditText editText) {
+    private void addTextWatcher(EditText editText) {
             editText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -325,21 +370,20 @@ public class AddReviewsFragment extends Fragment {
                 }
             });
         }
-
-        private void updateFieldAppearance(EditText field, boolean hasContent) {
+    private void updateFieldAppearance(EditText field, boolean hasContent) {
             int color = hasContent ? R.color.color_2 : R.color.color_3;
             field.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), color));
         }
 
-        private void showToast(String message) {
+    private void showToast(String message) {
             mainHandler.post(() ->
                     Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show()
             );
         }
 
         @Override
-        public void onDetach() {
+    public void onDetach() {
             dbInstitutions.close();
             super.onDetach();
         }
-    }
+}

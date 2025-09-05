@@ -9,7 +9,7 @@ public class DataBaseOfUsers extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_TABLE =
             "CREATE TABLE " + UserTable.TABLE_NAME + " (" +
-                    UserTable._ID + " INTEGER PRIMARY KEY," +
+                    UserTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     UserTable.LOGIN + " TEXT UNIQUE," +
                     UserTable.PASSWORD + " TEXT," +
                     UserTable.ROLE + " TEXT CHECK(" + UserTable.ROLE + " IN ('institution','human','admin'))," +

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,11 +91,18 @@ public class MainFragment extends Fragment {
             tvReviewText.setText(current.getTextReview());
             tvAddress.setText(current.getAddressText());
 
-            if (current.getImageUrl() != null && !current.getImageUrl().isEmpty()) {
-                Glide.with(this).load(current.getImageUrl()).into(ivReviewImage);
-                ivReviewImage.setVisibility(View.VISIBLE);
-            } else {
+            try {
+                if (current.getImageUrl() != null && !current.getImageUrl().isEmpty()) {
+                    Glide.with(this)
+                            .load(Uri.parse(current.getImageUrl()))
+                            .into(ivReviewImage);
+                    ivReviewImage.setVisibility(View.VISIBLE);
+                } else {
+                    ivReviewImage.setVisibility(View.GONE);
+                }
+            } catch (Exception e) {
                 ivReviewImage.setVisibility(View.GONE);
+                Log.e("MainFragment", "Error loading image", e);
             }
         }
     }

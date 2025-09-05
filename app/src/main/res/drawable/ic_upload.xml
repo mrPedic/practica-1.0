@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Верхняя дуга -->
+    <path
+        android:pathData="M5.238,14.811C5.637,16.3 6.516,17.615 7.739,18.553C8.961,19.491 10.459,20 12,20C13.541,20 15.039,19.491 16.261,18.553C17.484,17.615 18.363,16.3 18.762,14.811"
+        android:strokeColor="#33363F"
+        android:strokeWidth="2"/>
+
+    <!-- Стрелка -->
+    <path
+        android:pathData="M12,4L11.375,3.219L12,2.719L12.625,3.219L12,4ZM13,13C13,13.552 12.552,14 12,14C11.448,14 11,13.552 11,13L13,13ZM6.375,7.219L11.375,3.219L12.625,4.781L7.625,8.781L6.375,7.219ZM12.625,3.219L17.625,7.219L16.375,8.781L11.375,4.781L12.625,3.219ZM13,4L13,13L11,13L11,4L13,4Z"
+        android:fillColor="#33363F"/>
+</vector>
